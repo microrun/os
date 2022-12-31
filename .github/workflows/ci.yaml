@@ -1,0 +1,13 @@
+on: [push]
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v1.2.0
+      - uses: distroless/actions/apko-publish@79f3e36e70469e4f6c278a226174d529d1d8cfc8
+        id: apko
+        with:
+          config: rootfs.yaml
+          tag: ghcr.io/microrun/os/rootfs:latest

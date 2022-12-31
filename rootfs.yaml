@@ -1,0 +1,11 @@
+contents:
+  repositories:
+    - https://dl-cdn.alpinelinux.org/alpine/v3.17/main/
+  packages:
+    - btrfs-progs
+    - btrfs-progs-libs
+    - linux-virt
+
+archs:
+  - x86_64
+  - aarch64
