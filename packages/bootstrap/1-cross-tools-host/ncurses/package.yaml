@@ -1,0 +1,38 @@
+version: 6.4-20230225
+website: https://invisible-island.net/ncurses/announce.html
+bootstrap: true
+source:
+  - url: https://invisible-mirror.net/archives/ncurses/current/ncurses-{{ .Version }}.tgz
+    sha256: e74fcec686a786b005709ac845f6272884d57cdba66a640c0569dc945e62d497
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/libstdc++
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xf ncurses-{{ .Version }}.tgz --strip-components=1
+  - |
+    sed -i s/mawk// configure
+    mkdir build
+    pushd build
+      ../configure
+      make -C include
+      make -C progs tic
+    popd
+    ./configure --prefix=/usr                \
+                --host=$CROSS_TRIPLET        \
+                --build=$(./config.guess)    \
+                --mandir=/usr/share/man      \
+                --with-manpage-format=normal \
+                --with-shared                \
+                --without-normal             \
+                --with-cxx-shared            \
+                --without-debug              \
+                --without-ada                \
+                --disable-stripping          \
+                --enable-widec
+  - make
+install:
+  - make TIC_PATH=$(pwd)/build/progs/tic DESTDIR=/target install
+  - echo "INPUT(-lncursesw)" > /target/usr/lib/libncurses.so

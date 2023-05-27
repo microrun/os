@@ -1,0 +1,41 @@
+version: 12.2.0
+website: https://gcc.gnu.org/
+bootstrap: true
+source:
+  - url: https://gcc.gnu.org/pub/gcc/releases/gcc-{{ .Version }}/gcc-{{ .Version }}.tar.xz
+    sha256: e549cf9cf3594a00e27b6589d4322d70e0720cdd213f39beb4181e06926230ff
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+build:
+  - tar -xJf gcc-{{ .Version }}.tar.xz --strip-components=1
+  - patch -p1 <0001-Change-64-bit-lib-path-for-x86_64-and-aarch64-to-lib.patch
+  - ./contrib/download_prerequisites
+  - |
+    mkdir build
+    cd build
+    
+    ../configure              \
+    --target=$CROSS_TRIPLET   \
+    --prefix=/bootstrap/tools \
+    --with-glibc-version=2.36 \
+    --with-sysroot=/bootstrap \
+    --with-newlib             \
+    --without-headers         \
+    --disable-nls             \
+    --disable-shared          \
+    --disable-multilib        \
+    --disable-decimal-float   \
+    --disable-threads         \
+    --disable-libatomic       \
+    --disable-libgomp         \
+    --disable-libquadmath     \
+    --disable-libssp          \
+    --disable-libvtv          \
+    --disable-libstdcxx       \
+    --enable-languages=c,c++
+    
+    make -j $(nproc)
+install:
+  - cd build && make install
+  - mv /target/bootstrap/tools /target
+  - cat gcc/limitx.h gcc/glimits.h gcc/limity.h > `dirname $(/target/tools/bin/$CROSS_TRIPLET-gcc -print-libgcc-file-name)`/install-tools/include/limits.h

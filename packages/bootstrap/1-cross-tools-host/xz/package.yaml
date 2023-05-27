@@ -1,0 +1,24 @@
+version: 5.4.1
+website: https://tukaani.org/xz
+bootstrap: true
+source:
+  - url: https://netcologne.dl.sourceforge.net/project/lzmautils/xz-{{ .Version }}.tar.xz
+    sha256: 5d9827aa1875b21c288f78864bb26d2650b436ea8d2cad364e4921eb6266a5a5
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf xz-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr   \
+            --host=$CROSS_TRIPLET \
+            --build=$(build-aux/config.guess) \
+            --disable-static                  \
+            --docdir=/usr/share/doc/xz-5.4.1
+
+  - make
+install:
+  - make install
+  - rm -v /target/usr/lib/liblzma.la

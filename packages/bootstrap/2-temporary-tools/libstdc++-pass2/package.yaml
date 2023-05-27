@@ -1,0 +1,37 @@
+version: 12.2.0
+website: https://gcc.gnu.org/
+source:
+  - url: https://gcc.gnu.org/pub/gcc/releases/gcc-{{ .Version }}/gcc-{{ .Version }}.tar.xz
+    sha256: e549cf9cf3594a00e27b6589d4322d70e0720cdd213f39beb4181e06926230ff
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/libstdc++
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+build:
+  - tar -xJf gcc-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    mkdir build
+    cd build
+    ../libstdc++-v3/configure            \
+    CXXFLAGS="-g -O2 -D_GNU_SOURCE"  \
+    --prefix=/usr                    \
+    --disable-multilib               \
+    --disable-nls                    \
+    --host=$(uname -m)-microrun-linux-gnu \
+    --disable-libstdcxx-pch
+    
+    make -j $(nproc)
+install:
+  - cd build && make install

@@ -1,0 +1,35 @@
+version: 5.34.0
+website: https://www.perl.org/
+source:
+  - url: https://www.cpan.org/src/5.0/perl-{{ .Version }}.tar.xz
+    sha256: 82c2e5e5c71b0e10487a80d79140469ab1f8056349ca8545140a224dbbed7ded
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+build:
+  - tar -xJf perl-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    sh Configure -des                                        \
+                 -Dprefix=/usr                               \
+                 -Dvendorprefix=/usr                         \
+                 -Dprivlib=/usr/lib/perl5/5.34/core_perl     \
+                 -Darchlib=/usr/lib/perl5/5.34/core_perl     \
+                 -Dsitelib=/usr/lib/perl5/5.34/site_perl     \
+                 -Dsitearch=/usr/lib/perl5/5.34/site_perl    \
+                 -Dvendorlib=/usr/lib/perl5/5.34/vendor_perl \
+                 -Dvendorarch=/usr/lib/perl5/5.34/vendor_perl
+  - make -j $(nproc)
+install:
+  - make install

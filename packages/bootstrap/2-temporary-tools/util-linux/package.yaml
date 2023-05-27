@@ -1,0 +1,43 @@
+version: 2.37.2
+website: https://git.kernel.org/pub/scm/utils/util-linux/util-linux.git/
+source:
+  - url: https://www.kernel.org/pub/linux/utils/util-linux/v2.37/util-linux-{{ .Version }}.tar.xz #TODO fix version in path with helper func
+    sha256: 6a0764c1aae7fb607ef8a6dd2c0f6c47d5e5fd27aa08820abaad9ec14e28e9d9
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+build:
+  - tar -xJf util-linux-{{ .Version }}.tar.xz --strip-components=1
+  - |#todo: fix with groups and passwd files
+    ./configure ADJTIME_PATH=/var/lib/hwclock/adjtime    \
+                --libdir=/usr/lib    \
+                --docdir=/usr/share/doc/util-linux-2.37.2 \
+                --disable-chfn-chsh  \
+                --disable-login      \
+                --disable-nologin    \
+                --disable-su         \
+                --disable-setpriv    \
+                --disable-runuser    \
+                --disable-pylibmount \
+                --disable-static     \
+                --without-python     \
+                --disable-wall       \
+                --disable-write      \
+                --disable-mesg       \
+                runstatedir=/run
+  - make -j $(nproc)
+install:
+  - mkdir -pv /var/lib/hwclock
+  - make install

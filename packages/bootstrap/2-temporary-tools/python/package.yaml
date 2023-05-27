@@ -1,0 +1,29 @@
+version: 3.9.6
+website: https://www.python.org/
+source:
+  - url: https://www.python.org/ftp/python/{{ .Version }}/Python-{{ .Version }}.tar.xz
+    sha256: 397920af33efc5b97f2e0b57e91923512ef89fc5b3c1d21dbfc8c4828ce0108a
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+build:
+  - tar -xJf Python-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr   \
+                --enable-shared \
+                --without-ensurepip
+  - make -j $(nproc)
+install:
+  - make install

@@ -1,0 +1,30 @@
+version: 6.8
+website: https://www.gnu.org/software/texinfo/
+source:
+  - url: https://ftp.gnu.org/gnu/texinfo/texinfo-{{ .Version }}.tar.xz
+    sha256: 8eb753ed28bca21f8f56c1a180362aed789229bd62fff58bf8368e9beb59fec4
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+  - name: bootstrap/2-temporary-tools/perl
+build:
+  - tar -xJf texinfo-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    sed -e 's/__attribute_nonnull__/__nonnull/' \
+        -i gnulib/lib/malloc/dynarray-skeleton.c
+  - ./configure --prefix=/usr
+  - make -j $(nproc)
+install:
+  - make install

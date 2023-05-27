@@ -1,0 +1,28 @@
+version: 3.7.6
+website: https://www.gnu.org/software/bison/
+source:
+  - url: https://ftp.gnu.org/gnu/bison/bison-{{ .Version }}.tar.xz
+    sha256: 67d68ce1e22192050525643fc0a7a22297576682bef6a5c51446903f5aeef3cf
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/m4
+  - name: bootstrap/1-cross-tools-host/gawk
+  - name: bootstrap/1-cross-tools-host/diffutils
+build:
+  - tar -xJf bison-{{ .Version }}.tar.xz --strip-components=1
+  - ./configure --prefix=/usr --docdir=/usr/share/doc/bison-3.7.6
+  - make -j $(nproc)
+install:
+  - make install

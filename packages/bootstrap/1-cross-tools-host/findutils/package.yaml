@@ -1,0 +1,21 @@
+version: 4.9.0
+website: https://www.gnu.org/software/findutils/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/findutils/findutils-{{ .Version }}.tar.xz
+    sha256: a2bfb8c09d436770edc59f50fa483e785b161a3b7b9d547573cb08065fd462fe
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf findutils-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr               \
+            --localstatedir=/var/lib/locate \
+            --host=$CROSS_TRIPLET           \
+            --build=$(build-aux/config.guess)
+  - make
+install:
+  - make install

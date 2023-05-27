@@ -1,0 +1,19 @@
+version: 2.7.6
+website: https://savannah.gnu.org/projects/patch/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/patch/patch-{{ .Version }}.tar.xz
+    sha256: ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+build:
+  - tar -xJf patch-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr   \
+            --host=$CROSS_TRIPLET \
+            --build=$(build-aux/config.guess)
+  - make
+install:
+  - make install

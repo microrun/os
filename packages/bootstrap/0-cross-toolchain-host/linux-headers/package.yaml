@@ -1,0 +1,14 @@
+version: 5.15.94
+website: https://kernel.org/
+bootstrap: true
+source:
+  - url: https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-{{ .Version }}.tar.xz
+    sha256: da9270dbe64ddf1db13c70470957ff6796eb996d867bb4aed7d14a70e1c65a72
+build:
+  - tar -xJf linux-{{ .Version }}.tar.xz --strip-components=1
+  - make mrproper
+  - make headers
+  - find usr/include -type f ! -name '*.h' -delete
+install:
+  - mkdir -p /target/usr
+  - cp -rv usr/include /target/usr

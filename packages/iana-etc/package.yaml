@@ -1,0 +1,18 @@
+version: 20230202
+website: https://www.iana.org/protocols
+source:
+  - url: https://github.com/Mic92/iana-etc/releases/download/20230202/iana-etc-{{ .Version }}.tar.gz
+    sha256: c4739d709941ed50b385a0bd58f2a9299f68b1bd260238b2f411c5459e5aa524
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/gzip
+build:
+  - tar -xzf iana-etc-{{ .Version }}.tar.gz --strip-components=1
+install:
+  - mkdir -p /target/etc
+  - cp services protocols /target/etc

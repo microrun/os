@@ -1,0 +1,45 @@
+version: 12.2.0
+website: https://gcc.gnu.org/
+bootstrap: true
+source:
+  - url: https://gcc.gnu.org/pub/gcc/releases/gcc-{{ .Version }}/gcc-{{ .Version }}.tar.xz
+    sha256: e549cf9cf3594a00e27b6589d4322d70e0720cdd213f39beb4181e06926230ff
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/libstdc++
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+build:
+  - tar -xJf gcc-{{ .Version }}.tar.xz --strip-components=1
+  - patch -p1 <0001-Change-64-bit-lib-path-for-x86_64-and-aarch64-to-lib.patch
+  - ./contrib/download_prerequisites
+  - mkdir -pv $CROSS_TRIPLET/libgcc
+  - ln -s ../../../libgcc/gthr-posix.h $CROSS_TRIPLET/libgcc/gthr-default.h
+  - |
+    mkdir build
+    cd build
+    
+    ../configure                                   \
+    --build=$(../config.guess)                     \
+    --host=$CROSS_TRIPLET                          \
+    --prefix=/usr                                  \
+    CC_FOR_TARGET=$CROSS_TRIPLET-gcc               \
+    --with-build-sysroot=/bootstrap                \
+    --enable-initfini-array                        \
+    --disable-nls                                  \
+    --disable-multilib                             \
+    --disable-decimal-float                        \
+    --disable-libatomic                            \
+    --disable-libgomp                              \
+    --disable-libquadmath                          \
+    --disable-libssp                               \
+    --disable-libvtv                               \
+    --disable-libstdcxx                            \
+    --enable-languages=c,c++
+    
+    make -j $(nproc)
+install:
+  - cd build && make install
+  - ln -s gcc /target/usr/bin/cc

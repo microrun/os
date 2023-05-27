@@ -1,0 +1,21 @@
+version: 5.2.1
+website: https://www.gnu.org/software/gawk/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/gawk/gawk-{{ .Version }}.tar.xz
+    sha256: 673553b91f9e18cc5792ed51075df8d510c9040f550a6f74e09c9add243a7e4f
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf gawk-{{ .Version }}.tar.xz --strip-components=1
+  - sed -i 's/extras//' Makefile.in
+  - |
+    ./configure --prefix=/usr     \
+            --host=$CROSS_TRIPLET \
+            --build=$(build-aux/config.guess)
+  - make
+install:
+  - make install

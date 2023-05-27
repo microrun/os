@@ -1,0 +1,25 @@
+version: 4.4.1
+website: https://www.gnu.org/software/make/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/make/make-{{ .Version }}.tar.gz
+    sha256: dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xf make-{{ .Version }}.tar.gz --strip-components=1
+  - |
+    sed -e '/ifdef SIGPIPE/,+2 d' \
+    -e '/undef  FATAL_SIG/i FATAL_SIG (SIGPIPE);' \
+    -i src/main.c
+    
+    ./configure --prefix=/usr   \
+            --without-guile \
+            --host=$CROSS_TRIPLET \
+            --build=$(build-aux/config.guess)
+  - make
+install:
+  - make install

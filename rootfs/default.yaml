@@ -1,0 +1,7 @@
+arch:
+  - amd64
+  - arm64
+packages:
+  - fs-layout
+  - bootstrap/1-cross-tools-host/bash
+  - bootstrap/1-cross-tools-host/coreutils

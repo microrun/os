@@ -1,0 +1,29 @@
+version: 2.37
+website: https://www.gnu.org/software/libc/
+bootstrap: true
+source:
+  - url: http://ftp.gnu.org/gnu/libc/glibc-{{ .Version }}.tar.xz
+    sha256: 2257eff111a1815d74f46856daaf40b019c1e553156c69d48ba0cbfc1bb91a43
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf glibc-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    mkdir build
+    cd build
+    ../configure                            \
+      --prefix=/usr                         \
+      --host=$CROSS_TRIPLET                 \
+      --build=$(../scripts/config.guess)    \
+      --enable-kernel=3.2                   \
+      --with-headers=/bootstrap/usr/include \
+      libc_cv_slibdir=/usr/lib
+    make -j $(nproc)
+install:
+  - cd build && make install
+  - sed '/RTLDLIST=/s@/usr@@g' -i /target/usr/bin/ldd
+  - /bootstrap/tools/libexec/gcc/$CROSS_TRIPLET/12.2.0/install-tools/mkheaders -v /bootstrap/tools /target/usr/include
+  - mkdir -p /target/tools/lib/gcc/$CROSS_TRIPLET/12.2.0/include-fixed
+  - cp /bootstrap/tools/lib/gcc/$CROSS_TRIPLET/12.2.0/include-fixed/* /target/tools/lib/gcc/$CROSS_TRIPLET/12.2.0/include-fixed

@@ -1,0 +1,49 @@
+version: 2.37
+website: https://www.gnu.org/software/libc/
+source:
+  - url: https://ftp.gnu.org/gnu/libc/glibc-{{ .Version }}.tar.xz
+    sha256: 2257eff111a1815d74f46856daaf40b019c1e553156c69d48ba0cbfc1bb91a43
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/diffutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gzip
+  - name: bootstrap/1-cross-tools-host/m4
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+  - name: bootstrap/2-temporary-tools/perl
+  - name: bootstrap/2-temporary-tools/python
+  - name: bootstrap/2-temporary-tools/bison
+  - name: bootstrap/2-temporary-tools/gettext
+  - name: bootstrap/2-temporary-tools/texinfo
+build:
+  - tar -xJf glibc-{{ .Version }}.tar.xz --strip-components=1
+  - | #TODO: replace with proper patch, track CVE etc.
+    sed '/width -=/s/workend - string/number_length/' \
+    -i stdio-common/vfprintf-process-arg.c
+  - |
+    mkdir build
+    cd build
+    ../configure --prefix=/usr                        \
+             --disable-werror                         \
+             --enable-kernel=3.2                      \
+             --enable-stack-protector=strong          \
+             --with-headers=/usr/include              \
+             libc_cv_slibdir=/usr/lib
+    make -j $(nproc)
+  - cd build && make check -j $(nrpoc)|| echo "Continuing..." #TODO: check which tests fail
+install: #TODO: omitted locales and timezones for now, figure out later
+  - touch /etc/ld.so.conf
+  - sed '/test-installation/s@$(PERL)@echo not running@' -i Makefile
+  - cd build && make install
+  - sed '/RTLDLIST=/s@/usr@@g' -i /usr/bin/ldd

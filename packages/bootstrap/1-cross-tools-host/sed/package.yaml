@@ -1,0 +1,19 @@
+version: 4.9
+website: https://www.gnu.org/software/sed/
+bootstrap: true #TODO: rename back to host
+source:
+  - url: https://ftp.gnu.org/gnu/sed/sed-{{ .Version }}.tar.xz
+    sha256: 6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d24975181
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf sed-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr   \
+            --host=$CROSS_TRIPLET
+  - make
+install:
+  - make install

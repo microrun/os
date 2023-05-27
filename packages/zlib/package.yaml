@@ -1,0 +1,25 @@
+version: 1.2.13
+website: https://www.zlib.net/
+source:
+  - url: https://zlib.net/zlib-{{ .Version }}.tar.xz
+    sha256: d14c38e313afc35a9a8760dadf26042f51ea0f5d154b0630a31da0540107fb98
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: glibc
+build:
+  - tar -xJf zlib-{{ .Version }}.tar.xz --strip-components=1
+  - ./configure --prefix=/usr
+  - make -j $(nproc)
+  - make check -j $(nrpoc)
+install:
+  - make install

@@ -1,0 +1,19 @@
+version: 1.12
+website: https://www.gnu.org/software/gzip/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/gzip/gzip-{{ .Version }}.tar.xz
+    sha256: ce5e03e519f637e1f814011ace35c4f87b33c0bbabeec35baf5fbd3479e91956
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf gzip-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr   \
+      --host=$CROSS_TRIPLET
+  - make
+install:
+  - make install

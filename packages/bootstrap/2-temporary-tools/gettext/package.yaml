@@ -1,0 +1,27 @@
+version: 0.21
+website: https://www.gnu.org/software/gettext/
+source:
+  - url: https://ftp.gnu.org/gnu/gettext/gettext-{{ .Version }}.tar.xz
+    sha256: d20fcbb537e02dcf1383197ba05bd0734ef7bf5db06bdb241eb69b7d16b73192
+dependencies:
+  - name: fs-layout
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+  - name: bootstrap/1-cross-tools-host/bash
+  - name: bootstrap/1-cross-tools-host/coreutils
+  - name: bootstrap/1-cross-tools-host/ncurses
+  - name: bootstrap/1-cross-tools-host/tar
+  - name: bootstrap/1-cross-tools-host/xz
+  - name: bootstrap/1-cross-tools-host/gcc-pass2
+  - name: bootstrap/1-cross-tools-host/binutils-pass2
+  - name: bootstrap/1-cross-tools-host/make
+  - name: bootstrap/1-cross-tools-host/sed
+  - name: bootstrap/1-cross-tools-host/grep
+  - name: bootstrap/1-cross-tools-host/gawk
+  - name: bootstrap/1-cross-tools-host/findutils
+build:
+  - tar -xJf gettext-{{ .Version }}.tar.xz --strip-components=1
+  - ./configure --disable-shared
+  - make -j $(nproc)
+install:
+  - cp -v gettext-tools/src/{msgfmt,msgmerge,xgettext} /usr/bin

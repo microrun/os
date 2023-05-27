@@ -1,0 +1,32 @@
+version: 2.39
+website: https://www.gnu.org/software/binutils/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/binutils/binutils-{{ .Version }}.tar.xz
+    sha256: 645c25f563b8adc0a81dbd6a41cffbf4d37083a382e02d5d3df4f65c09516d00
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf binutils-{{ .Version }}.tar.xz --strip-components=1
+  - sed '6009s/$add_dir//' -i ltmain.sh # TODO: replace with proper patch!!!
+  - |
+    mkdir build
+    cd build
+    
+    ../configure \
+             --prefix=/usr \
+             --build=$(../config.guess) \
+             --host=$CROSS_TRIPLET \
+             --disable-nls              \
+             --enable-shared            \
+             --enable-gprofng=no        \
+             --disable-werror           \
+             --enable-64-bit-bfd
+  
+    make -j $(nproc)
+install:
+  - cd build && make install
+  - rm -v /target/usr/lib/lib{bfd,ctf,ctf-nobfd,opcodes}.{a,la}

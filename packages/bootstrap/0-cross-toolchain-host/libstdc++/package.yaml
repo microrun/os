@@ -1,0 +1,29 @@
+version: 12.2.0
+website: https://gcc.gnu.org/
+bootstrap: true
+source:
+  - url: https://gcc.gnu.org/pub/gcc/releases/gcc-{{ .Version }}/gcc-{{ .Version }}.tar.xz
+    sha256: e549cf9cf3594a00e27b6589d4322d70e0720cdd213f39beb4181e06926230ff
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xJf gcc-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    mkdir build
+    cd build
+    ../libstdc++-v3/configure   \
+    --host=$CROSS_TRIPLET           \
+    --build=$(../config.guess)      \
+    --prefix=/usr                   \
+    --disable-multilib              \
+    --disable-nls                   \
+    --disable-libstdcxx-pch         \
+    --with-gxx-include-dir=/tools/$CROSS_TRIPLET/include/c++/12.2.0
+    
+    make -j $(nproc)
+install:
+  - cd build && make install
+  - rm -v /target/usr/lib/lib{stdc++,stdc++fs,supc++}.la

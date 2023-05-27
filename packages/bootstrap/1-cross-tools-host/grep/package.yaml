@@ -1,0 +1,19 @@
+version: 3.8
+website: https://www.gnu.org/software/grep/
+bootstrap: true
+source:
+  - url: https://ftp.gnu.org/gnu/grep/grep-{{ .Version }}.tar.xz
+    sha256: 498d7cc1b4fb081904d87343febb73475cf771e424fb7e6141aff66013abc382
+dependencies:
+  - name: bootstrap/0-cross-toolchain-host/binutils
+  - name: bootstrap/0-cross-toolchain-host/gcc
+  - name: bootstrap/0-cross-toolchain-host/glibc
+  - name: bootstrap/0-cross-toolchain-host/linux-headers
+build:
+  - tar -xf grep-{{ .Version }}.tar.xz --strip-components=1
+  - |
+    ./configure --prefix=/usr   \
+      --host=$CROSS_TRIPLET
+  - make
+install:
+  - make install
